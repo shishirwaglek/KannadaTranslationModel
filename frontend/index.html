@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English to Kannada Translator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: 100px;
+            resize: none;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .translation-output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>English to Kannada Translator</h1>
+
+    <div class="form-group">
+        <label for="englishText">Enter English Text:</label>
+        <textarea id="englishText" placeholder="Type something here..."></textarea>
+    </div>
+
+    <button id="translateButton">Translate</button>
+
+    <div id="translationResult" class="translation-output" style="display: none;">
+        <strong>Kannada Translation:</strong>
+        <p id="translatedText"></p>
+    </div>
+</div>
+<script>
+    document.getElementById('translateButton').addEventListener('click', function() {
+        const sentence = document.getElementById('englishText').value;
+
+        if (!sentence) {
+            alert("Please enter some text to translate!");
+            return;
+        }
+
+        // Disable the button and show loading message
+        const button = document.getElementById('translateButton');
+        button.disabled = true;
+        button.textContent = "Translating...";
+
+        // Make a POST request to the Flask backend for translation
+        fetch('/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ sentence: sentence }),  // Send the sentence key
+        })
+        .then(response => response.json())
+        .then(data => {
+            button.disabled = false;
+            button.textContent = "Translate"; // Reset button text
+
+            if (data.translation) {  // Check for translation key
+                // Display the translation
+                document.getElementById('translationResult').style.display = 'block';
+                document.getElementById('translatedText').textContent = data.translation;
+            } else {
+                alert("Translation failed. Please try again.");
+            }
+        })
+        .catch(error => {
+            button.disabled = false; // Reset button if error occurs
+            button.textContent = "Translate"; // Reset button text
+            console.error('Error:', error);
+            alert("An error occurred. Please try again.");
+        });
+    });
+</script>
+
+</body>
+</html>
